@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>做了么? - 拒绝焦虑，即刻行动</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --text-color: #ffffff;
+            --accent-green: #2ecc71;
+            --accent-gray: #333333;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Noto Sans SC', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+        p.subtitle {
+            color: #888;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-yes {
+            background-color: var(--accent-green);
+            color: #000;
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+        }
+        .btn-no {
+            background-color: var(--accent-gray);
+            color: #888;
+        }
+        .streak-counter {
+            margin-top: 40px;
+            font-size: 1rem;
+            color: #555;
+            opacity: 0; /* 默认隐藏，有数据才显示 */
+            transition: opacity 0.5s;
+        }
+        .streak-number {
+            color: var(--accent-green);
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: #444;
+        }
+        footer a {
+            color: #666;
+            text-decoration: none;
+            border-bottom: 1px dotted #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>做了么?</h1>
+        <p class="subtitle" id="tagline">别等“死了么”发通知，先问自己做了没。</p>
+
+        <div class="btn-group">
+            <button class="btn btn-yes" onclick="handleYes()">做了！</button>
+            <button class="btn btn-no" onclick="handleNo()">还没...</button>
+        </div>
+
+        <div class="streak-counter" id="streakBox">
+            你已经累计行动 <span class="streak-counter streak-number" id="count">0</span> 次
+        </div>
+    </div>
+
+    <footer>
+        <p>Created by <a href="https://www.tiktok.com/@你的账号ID" target="_blank">阿飞成长日记</a></p>
+    </footer>
+
+    <script>
+        // 读取本地存储
+        let count = parseInt(localStorage.getItem('zuoleme_count')) || 0;
+        const streakBox = document.getElementById('streakBox');
+        const countSpan = document.getElementById('count');
+
+        // 初始化显示
+        if(count > 0) {
+            streakBox.style.opacity = 1;
+            countSpan.innerText = count;
+        }
+
+        function handleYes() {
+            // 1. 数据 +1
+            count++;
+            localStorage.setItem('zuoleme_count', count);
+            countSpan.innerText = count;
+            streakBox.style.opacity = 1;
+
+            // 2. 更改文案
+            document.getElementById('tagline').innerText = "牛逼！今天你离废柴又远了一步。";
+            document.getElementById('tagline').style.color = "#2ecc71";
+
+            // 3. 放烟花特效 (Canvas Confetti)
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#2ecc71', '#ffffff', '#f1c40f']
+            });
+        }
+
+        function handleNo() {
+            // 玩梗：点击“还没”后的扎心反应
+            alert("⚠️ 警告：\n\n检测到“拖延症”晚期迹象。\n再不行动，真的要去隔壁下载“死了么”了。");
+            
+            // 可以在这里加一个恶搞跳转，比如跳转到你自己的B站催更视频，或者什么都不做
+        }
+    </script>
+</body>
+</html>
