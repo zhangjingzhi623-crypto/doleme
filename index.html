@@ -2,127 +2,235 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>做了么? - 拒绝焦虑，即刻行动</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>做了么? - Done?</title>
+    <meta name="description" content="别等‘死了么’发通知，先问自己今天做了没。">
+    
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <style>
         :root {
-            --bg-color: #0a0a0a;
-            --text-color: #ffffff;
-            --accent-green: #2ecc71;
-            --accent-gray: #333333;
+            --bg: #050505;
+            --card-bg: #111;
+            --text-main: #fff;
+            --text-dim: #666;
+            --green: #00ff88; /* 赛博朋克绿 */
+            --red: #ff3355;
+            --btn-shadow: 0 4px 0 #000;
         }
+
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg);
+            color: var(--text-main);
             font-family: 'Noto Sans SC', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow: hidden; /* 防止滑动 */
             text-align: center;
+            -webkit-font-smoothing: antialiased;
         }
+
         .container {
-            max-width: 600px;
+            width: 90%;
+            max-width: 500px;
             padding: 20px;
+            z-index: 10;
         }
+
+        /* 标题样式 */
         h1 {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 3.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: 900;
-            letter-spacing: -2px;
+            margin: 0;
+            letter-spacing: -3px;
+            background: linear-gradient(180deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        p.subtitle {
+        
+        .eng-title {
+            font-size: 1rem;
+            letter-spacing: 5px;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
             color: #888;
-            font-size: 1.2rem;
             margin-bottom: 3rem;
+            min-height: 3rem; /* 占位防止跳动 */
+            transition: color 0.3s;
         }
+
+        /* 按钮组 */
         .btn-group {
             display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
         }
+
         .btn {
-            padding: 15px 40px;
-            font-size: 1.5rem;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            padding: 20px 0;
             border: none;
-            border-radius: 50px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.1s, opacity 0.2s;
+            width: 100%;
+            position: relative;
+            transition: all 0.1s;
+            text-transform: uppercase;
         }
-        .btn:active {
-            transform: scale(0.95);
-        }
+
+        /* 做了按钮 */
         .btn-yes {
-            background-color: var(--accent-green);
+            background-color: var(--green);
             color: #000;
-            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+            box-shadow: 0 6px 0 #00b862; /* 3D按压感 */
         }
+        .btn-yes:active {
+            transform: translateY(6px);
+            box-shadow: none;
+        }
+
+        /* 没做按钮 */
         .btn-no {
-            background-color: var(--accent-gray);
-            color: #888;
+            background-color: #222;
+            color: #666;
+            box-shadow: 0 6px 0 #111;
         }
-        .streak-counter {
+        .btn-no:active {
+            transform: translateY(6px);
+            box-shadow: none;
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* 数据展示 */
+        .stats-box {
             margin-top: 40px;
-            font-size: 1rem;
-            color: #555;
-            opacity: 0; /* 默认隐藏，有数据才显示 */
-            transition: opacity 0.5s;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            border: 1px solid #222;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
         }
-        .streak-number {
-            color: var(--accent-green);
+        .stats-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .big-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            color: var(--green);
             font-weight: bold;
-            font-size: 1.5rem;
+            display: block;
+            line-height: 1;
+            margin-bottom: 5px;
         }
-        footer {
-            position: absolute;
-            bottom: 20px;
+
+        /* 炫耀按钮 */
+        .share-btn {
+            margin-top: 15px;
+            background: none;
+            border: 1px solid #333;
+            color: #666;
+            padding: 8px 15px;
+            border-radius: 20px;
             font-size: 0.8rem;
-            color: #444;
+            cursor: pointer;
+        }
+        .share-btn:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 0.75rem;
+            color: #333;
         }
         footer a {
-            color: #666;
+            color: #444;
             text-decoration: none;
-            border-bottom: 1px dotted #666;
+        }
+
+        /* 移动端适配 */
+        @media (min-width: 768px) {
+            .btn-group {
+                flex-direction: row;
+            }
+            h1 { font-size: 5rem; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>做了么?</h1>
+        <h1>做了么</h1>
+        <div class="eng-title">ZUO LE ME</div>
+        
         <p class="subtitle" id="tagline">别等“死了么”发通知，先问自己做了没。</p>
 
         <div class="btn-group">
-            <button class="btn btn-yes" onclick="handleYes()">做了！</button>
-            <button class="btn btn-no" onclick="handleNo()">还没...</button>
+            <button class="btn btn-yes" id="yesBtn" onclick="handleYes()">🔥 做了！(Done)</button>
+            <button class="btn btn-no" id="noBtn" onclick="handleNo()">💤 还没... (Nope)</button>
         </div>
 
-        <div class="streak-counter" id="streakBox">
-            你已经累计行动 <span class="streak-counter streak-number" id="count">0</span> 次
+        <div class="stats-box" id="statsBox">
+            <div>累计自我救赎</div>
+            <span class="big-number" id="count">0</span>
+            <div>次</div>
+            
+            <button class="share-btn" onclick="copyShare()">
+                🔗 复制链接去群里装X
+            </button>
         </div>
+
+        <footer>
+            <p>Project by <a href="https://www.tiktok.com/@你的ID" target="_blank">阿飞成长日记</a></p>
+        </footer>
     </div>
 
-    <footer>
-        <p>Created by <a href="https://www.tiktok.com/@你的账号ID" target="_blank">阿飞成长日记</a></p>
-    </footer>
-
     <script>
-        // 读取本地存储
+        // --- 核心配置 ---
+        // 毒鸡汤文案库：每次点“还没”随机骂一句
+        const insults = [
+            "你的床是胶水做的吗？",
+            "隔壁的‘死了么’在等你注册。",
+            "又是混吃等死的一天？",
+            "手机好玩吗？未来不要了？",
+            "再不行动，明年大四还得哭。",
+            "你可以继续躺，但时间不会等你。",
+            "今天的借口想好了吗？",
+            "这就是你说的‘明天开始’？",
+            "废物养成进度：99%..."
+        ];
+
         let count = parseInt(localStorage.getItem('zuoleme_count')) || 0;
-        const streakBox = document.getElementById('streakBox');
+        const tagline = document.getElementById('tagline');
+        const statsBox = document.getElementById('statsBox');
         const countSpan = document.getElementById('count');
 
-        // 初始化显示
+        // 初始化检查
         if(count > 0) {
-            streakBox.style.opacity = 1;
+            showStats();
+        }
+
+        function showStats() {
+            statsBox.classList.add('show');
             countSpan.innerText = count;
         }
 
@@ -130,27 +238,43 @@
             // 1. 数据 +1
             count++;
             localStorage.setItem('zuoleme_count', count);
-            countSpan.innerText = count;
-            streakBox.style.opacity = 1;
+            showStats();
 
-            // 2. 更改文案
-            document.getElementById('tagline').innerText = "牛逼！今天你离废柴又远了一步。";
-            document.getElementById('tagline').style.color = "#2ecc71";
-
-            // 3. 放烟花特效 (Canvas Confetti)
+            // 2. 只有第一次点击才放烟花，防止刷屏
             confetti({
                 particleCount: 150,
-                spread: 70,
+                spread: 100,
                 origin: { y: 0.6 },
-                colors: ['#2ecc71', '#ffffff', '#f1c40f']
+                colors: ['#00ff88', '#ffffff']
             });
+
+            // 3. 改变文案
+            tagline.innerText = "牛逼！你比昨天强了一点点。";
+            tagline.style.color = "#00ff88";
         }
 
         function handleNo() {
-            // 玩梗：点击“还没”后的扎心反应
-            alert("⚠️ 警告：\n\n检测到“拖延症”晚期迹象。\n再不行动，真的要去隔壁下载“死了么”了。");
+            // 随机取一句毒鸡汤
+            const randomIndex = Math.floor(Math.random() * insults.length);
+            tagline.innerText = insults[randomIndex];
+            tagline.style.color = "#ff3355";
             
-            // 可以在这里加一个恶搞跳转，比如跳转到你自己的B站催更视频，或者什么都不做
+            // 按钮轻微抖动效果（视觉惩罚）
+            const btn = document.getElementById('noBtn');
+            btn.style.transform = 'translateX(5px)';
+            setTimeout(() => { btn.style.transform = 'translateX(-5px)' }, 100);
+            setTimeout(() => { btn.style.transform = 'translateY(0)' }, 200);
+        }
+
+        function copyShare() {
+            // 复制文案到剪贴板
+            const text = `我在【做了么】坚持行动了 ${count} 次！\n如果你还瘫在床上，建议进来挨骂：\n${window.location.href}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert("已复制！快去群里卷死他们！");
+            }).catch(err => {
+                alert("复制失败，手动截图吧...");
+            });
         }
     </script>
 </body>
